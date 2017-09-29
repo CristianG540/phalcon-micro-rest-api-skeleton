@@ -5,16 +5,16 @@ return [
         'adapter' => 'Mysql', /* Possible Values: Mysql, Postgres, Sqlite */
         'host' => '127.0.0.1',
         'username' => 'root',
-        'password' => 'mysql',
-        'dbname' => 'myproject',
+        'password' => 'root',
+        'dbname' => 'dev_josefa',
         'charset' => 'utf8',
     ],
     'log_database' => [
         'adapter' => 'Mysql', /* Possible Values: Mysql, Postgres, Sqlite */
         'host' => '127.0.0.1',
         'username' => 'root',
-        'password' => 'mysql',
-        'dbname' => 'myproject_log',
+        'password' => 'root',
+        'dbname' => 'dev_josefa_log',
         'charset' => 'utf8',
     ],
     'authentication' => [

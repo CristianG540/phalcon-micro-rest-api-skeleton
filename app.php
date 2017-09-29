@@ -84,6 +84,24 @@ $cities->delete('/delete/{id}', 'delete');
 $app->mount($cities);
 
 /**
+* SAP - Utilidades y metodos relacionados con la concexion a sap,
+* esto se puede mejorar en un futuro
+*/
+$sap = new MicroCollection();
+$sap->setHandler('SapController', true);
+$sap->setPrefix('/sap');
+/**
+ * Punto de entrada al api de SAP, normalmente este metodo
+ * devolveria un get de todos los datos ej si fueran ciudades
+ * todas las ciudades con algunos parametros habilitados como limit-order-offset
+ * tal como los ejemplos de mas arriba, pero como es un API un poco mas enfocada
+ * a metodos de utilidades no lo uso de esa manera
+ */
+$sap->get('/', 'index');
+// Adds sap routes to $app
+$app->mount($sap);
+
+/**
 * Not found handler
 */
 $app->notFound(function () use ($app) {

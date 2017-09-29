@@ -28,12 +28,13 @@ $acl->addInherit('Superuser','User');
  * */
 $arrResources = [
     'Guest'=>[
-        'Users'=>['login'],
+        'Users' => ['login']
     ],
     'User'=>[
-        'Profile'=>['index','update','changePassword'],
-        'Users'=>['index','create','get','search','update','logout'],
-        'Cities'=>['index','create','get','ajax','update','delete'],
+        'Profile' => ['index','update','changePassword'],
+        'Users'   => ['index','create','get','search','update','logout'],
+        'Cities'  => ['index','create','get','ajax','update','delete'],
+        'Sap'     => ['index']
     ],
     'Superuser'=>[
         'Users'=>['changePassword'],

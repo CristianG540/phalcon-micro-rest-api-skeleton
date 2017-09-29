@@ -13,9 +13,17 @@ class AccessMiddleware extends ControllerBase implements MiddlewareInterface
     {
         // Initialize
         // Gets users ACL
+        xdebug_break();
         include APP_PATH.'/config/acl.php';
         $arrHandler = $app->getActiveHandler();
         //get the controller for this handler
+
+        /*********************************************************************/
+        // Seguir aqui con este intento de hacerlo trabjar sin lazy loading
+        //https://forum.phalconphp.com/discussion/1388/acl-in-micro
+        $test1 = get_class($arrHandler[0]);
+        $test2 = str_replace('Controller\\','',get_class($arrHandler[0]));
+        /********************************************************************/
         $array = (array) $arrHandler[0];
         $nameController = implode("", $array);
         $controller = str_replace('Controller', '', $nameController);

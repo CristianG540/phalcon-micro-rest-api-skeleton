@@ -169,16 +169,7 @@ class CitiesController extends ControllerBase
         // Start a transaction
         $this->db->begin();
 
-        $conditions = 'id = :id:';
-        $parameters = array(
-            'id' => $id,
-        );
-        $city = Cities::findFirst(
-            array(
-                $conditions,
-                'bind' => $parameters,
-            )
-        );
+        $city = Cities::findFirst($id);
         if (!$city) {
             $this->buildErrorResponse(404, 'common.NOT_FOUND');
         } else {
