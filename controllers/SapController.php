@@ -48,6 +48,9 @@ class SapController extends ControllerBase
     	$this->buildSuccessResponse(200, 'common.SUCCESSFUL_REQUEST', ["info"=>"systems online"]);
     }
 
+    /**
+     * Este metodo es que se loguea en sap y recupera el id de la sesion
+     */
     private function _login(){
 
         $error  = $this->_loginService->getError();
@@ -77,8 +80,31 @@ class SapController extends ControllerBase
 
     }
 
-    private function _logout(){
-
+    /**
+     * Este metodo es el encargado de cerrar la sesion en sap, recibe el id de la
+     * sesion que se desea cerrar
+     * @param  string $sessionId Id de la sesion que se desea cerrar
+     */
+    private function _logout($sessionId = ''){
+        $id = ($sessionId) ? $sessionId : $this->_sessionId;
+        $params = [
+            'SessionID' => $id
+        ];
+        $this->_loginService->setHeaders(['MsgHeader' => $params]);
+        $error = $this->_loginService->getError();
+        if(!$error){
+            $soapRes = $this->_loginService->call('Logout', '<Logout xmlns="LoginService" />');
+            $error  = $this->_loginService->getError();
+            if($error){
+               $this->_log->error('Error en el logout SAP: '. json_encode($error) );
+               $this->buildErrorResponse(403, 'common.SAP_ERROR_LOGOUT', $error);
+            }
+            $this->_log->info( "respuesta logout: ". json_encode($this->utf8ize($soapRes)) );
+            return true;
+        }else{
+            $this->_log->error('Error en el logout SAP: '. json_encode($error) );
+            $this->buildErrorResponse(403, 'common.SAP_ERROR_LOGIN', $error);
+        }
     }
 
 }

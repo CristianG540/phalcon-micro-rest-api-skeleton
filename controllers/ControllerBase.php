@@ -80,6 +80,24 @@ class ControllerBase extends Injectable
     }
 
     /**
+     * solve JSON_ERROR_UTF8 error in php json_encode
+     * esta funcionsita me corrije un error que habia al tratar de hacerle json encode aun array con tildes
+     * en algunos textos
+     * @param  array $mixed El erray que se decia corregir
+     * @return array        Regresa el mismo array pero corrigiendo errores en la codificacion
+     */
+    public function utf8ize($mixed) {
+        if (is_array($mixed)) {
+            foreach ($mixed as $key => $value) {
+                $mixed[$key] = $this->utf8ize($value);
+            }
+        } else if (is_string ($mixed)) {
+            return utf8_encode($mixed);
+        }
+        return $mixed;
+    }
+
+    /**
      * Array push associative.
      */
     public function array_push_assoc($array, $key, $value){
