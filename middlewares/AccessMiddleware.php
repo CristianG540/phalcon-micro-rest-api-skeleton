@@ -14,7 +14,6 @@ class AccessMiddleware extends ControllerBase implements MiddlewareInterface
         $nameController = "";
         // Initialize
         // Gets users ACL
-        xdebug_break();
         include APP_PATH.'/config/acl.php';
         $arrHandler = $app->getActiveHandler();
         //get the controller for this handler

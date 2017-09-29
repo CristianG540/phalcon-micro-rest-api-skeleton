@@ -1,6 +1,7 @@
 <?php
 
 use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 use Monolog\Handler\CouchDBHandler;
 
 class SapController extends ControllerBase
@@ -10,6 +11,10 @@ class SapController extends ControllerBase
      */
     private $_loginService;
     /**
+     * El id de la sesion que me da el sap, este se usa para los pedidos y para el logout
+     */
+    private $_sessionId = '';
+    /**
      * Variable donde guardo la instancia de monolog para hacer el log y debug de los datos
      * @var object
      */
@@ -18,6 +23,7 @@ class SapController extends ControllerBase
     public function __construct(){
         //xdebug_break();
         $this->_log = new Logger('josefaAPI');
+        $this->_log->pushHandler(new StreamHandler(__DIR__.'/../logs/info.log', Logger::DEBUG));
         $this->_log->pushHandler(new CouchDBHandler([
             'host'     => '108.163.227.76',
             'port'     => 5984,
@@ -42,7 +48,7 @@ class SapController extends ControllerBase
     	$this->buildSuccessResponse(200, 'common.SUCCESSFUL_REQUEST', ["info"=>"systems online"]);
     }
 
-    private function _loginSAP(){
+    private function _login(){
 
         $error  = $this->_loginService->getError();
         if(!$error){
@@ -59,15 +65,19 @@ class SapController extends ControllerBase
             $error  = $this->_loginService->getError();
             if($error){
                $this->log->error('Error en el login SAP: '. json_encode($error) );
+               $this->buildErrorResponse(403, 'common.SAP_ERROR_LOGIN', $error);
                return false;
             }
             $this->log->info("respuesta login: ".json_encode($soapRes));
-            $this->sessionId = $soapRes['SessionID'];
-            return $this->sessionId;
+            $this->_sessionId = $soapRes['SessionID'];
         }else{
-            $this->log->error('Error en el login SAP: '. json_encode($error) );
-            return false;
+            $this->_log->error('Error en el login SAP: '. json_encode($error) );
+            $this->buildErrorResponse(403, 'common.SAP_ERROR_LOGIN', $error);
         }
+
+    }
+
+    private function _logout(){
 
     }
 
