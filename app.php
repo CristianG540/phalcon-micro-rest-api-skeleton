@@ -20,7 +20,7 @@ $app->before(new AccessMiddleware());
 * Index
 */
 $index = new MicroCollection();
-$index->setHandler('IndexController', true);
+$index->setHandler(new IndexController());
 // Gets index
 $index->get('/', 'index');
 // Authenticates a user
@@ -34,7 +34,7 @@ $app->mount($index);
 * Profile
 */
 $profile = new MicroCollection();
-$profile->setHandler('ProfileController', true);
+$profile->setHandler(new ProfileController());
 $profile->setPrefix('/profile');
 // Gets profile
 $profile->get('/', 'index');
@@ -49,7 +49,7 @@ $app->mount($profile);
 * Users
 */
 $users = new MicroCollection();
-$users->setHandler('UsersController', true);
+$users->setHandler(new UsersController());
 $users->setPrefix('/users');
 // Gets all users
 $users->get('/', 'index');
@@ -68,7 +68,7 @@ $app->mount($users);
 * Cities
 */
 $cities = new MicroCollection();
-$cities->setHandler('CitiesController', true);
+$cities->setHandler(new CitiesController());
 $cities->setPrefix('/cities');
 // Gets cities
 $cities->get('/', 'index');
@@ -88,7 +88,7 @@ $app->mount($cities);
 * esto se puede mejorar en un futuro
 */
 $sap = new MicroCollection();
-$sap->setHandler('SapController', true);
+$sap->setHandler(new SapController());
 $sap->setPrefix('/sap');
 /**
  * Punto de entrada al api de SAP, normalmente este metodo

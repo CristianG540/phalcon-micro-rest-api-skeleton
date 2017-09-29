@@ -11,6 +11,7 @@ class AccessMiddleware extends ControllerBase implements MiddlewareInterface
 {
     public function call(Phalcon\Mvc\Micro $app)
     {
+        $nameController = "";
         // Initialize
         // Gets users ACL
         xdebug_break();
@@ -19,13 +20,20 @@ class AccessMiddleware extends ControllerBase implements MiddlewareInterface
         //get the controller for this handler
 
         /*********************************************************************/
-        // Seguir aqui con este intento de hacerlo trabjar sin lazy loading
+        /**
+         * Verifico si los controladores (handlers) se estan cargando por medio
+         * de lazy loading o no, y asi cambio la forma en la que se recupera el
+         * nombre del controlador que se esta llamando
+         */
         //https://forum.phalconphp.com/discussion/1388/acl-in-micro
-        $test1 = get_class($arrHandler[0]);
-        $test2 = str_replace('Controller\\','',get_class($arrHandler[0]));
+        if(get_class($arrHandler[0]) != "Phalcon\Mvc\Micro\LazyLoader" ){
+            $nameController = get_class($arrHandler[0]);
+        }else{
+            $array = (array) $arrHandler[0];
+            $nameController = implode("", $array);
+        }
         /********************************************************************/
-        $array = (array) $arrHandler[0];
-        $nameController = implode("", $array);
+
         $controller = str_replace('Controller', '', $nameController);
         // get function
         $function = $arrHandler[1];
