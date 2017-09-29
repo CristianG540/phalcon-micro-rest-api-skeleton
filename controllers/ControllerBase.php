@@ -1,8 +1,8 @@
 <?php
 
-use Phalcon\Mvc\Controller;
+use Phalcon\DI\Injectable;
 
-class ControllerBase extends Controller
+class ControllerBase extends Injectable
 {
     /**
      * These functions are available for multiple controllers
@@ -158,8 +158,16 @@ class ControllerBase extends Controller
      */
     public function decodeToken($token) {
         // Decode token
-        $token = $this->mycrypt->decryptBase64($token);
-        $token = $this->jwt->decode($token, $this->tokenConfig['secret'], array('HS256'));
+        $lenToken = strlen($token);
+
+        // Esta validacion la hago para evitar un warning que php lanza si el
+        // token es muy pequeño por lo genral cuando es un token erroneo
+        if( $lenToken >= 23 ){
+            $token = $this->mycrypt->decryptBase64($token);
+            $token = $this->jwt->decode($token, $this->tokenConfig['secret'], array('HS256'));
+        }else{
+            throw new Exception("El token ingresado no es valido, no es lo suficientemente largo");
+        }
         return $token;
     }
 
