@@ -52,6 +52,7 @@ $di->set('mycrypt', function () use ($config) {
 /**
  * JWT service
  */
+//Agrego aqui la diferencia entre "set" y "setShared" https://docs.phalconphp.com/en/latest/di#shared-services
 $di->setShared('jwt', function() {
     return new JWT();
 });

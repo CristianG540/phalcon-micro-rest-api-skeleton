@@ -98,6 +98,8 @@ $sap->setPrefix('/sap');
  * a metodos de utilidades no lo uso de esa manera
  */
 $sap->get('/', 'index');
+// Crea ordenes nuevas en sap mediante SOAP
+$sap->post('/order', 'order');
 // Adds sap routes to $app
 $app->mount($sap);
 
