@@ -1,8 +1,17 @@
 {
+    "name": "CristianG540/josefa",
+    "description": "App en desarrollo para intentar implementar un api con los servicios de sap por medio de soap para igb, hecha con poco amor",
+    "type": "project",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/CristianG540/nusoap"
+        }
+    ],
     "require": {
         "phalcon/devtools": "^3.2",
         "firebase/php-jwt": "^5.0",
-        "econea/nusoap": "v0.9.5.4",
+        "econea/nusoap": "dev-dev-sapfix",
         "monolog/monolog": "^1.23"
     }
 }
