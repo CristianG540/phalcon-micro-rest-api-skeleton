@@ -32,7 +32,7 @@ class SapController extends ControllerBase
             'password' => ''
         ], Logger::DEBUG));
 
-        $this->_loginService = new nusoap_client('http://b1ws.igbcolombia.com/B1WS/WebReferences/LoginService.wsdl', true);
+        $this->_loginService = new nusoap_client($this->sapConfig['login_wsdl'], true); /* desarrollo */
         $this->_loginService->setDebugLevel(0);
     }
 
@@ -41,10 +41,14 @@ class SapController extends ControllerBase
      */
     public function index()
     {
-        //xdebug_break();
+        xdebug_break();
     	// Verifies if is get request
         $this->initializeGet();
         $this->_log->info("systems online");
+
+        $this->_login();
+        $this->_logout();
+
     	$this->buildSuccessResponse(200, 'common.SUCCESSFUL_REQUEST', ["info"=>"systems online"]);
     }
 
@@ -57,7 +61,7 @@ class SapController extends ControllerBase
         if(!$error){
             $params = [
                 'DatabaseServer'  => '192.168.10.102', //string
-                'DatabaseName'    => 'MERCHANDISING', //string
+                'DatabaseName'    => $this->sapConfig['db_name'], //string
                 'DatabaseType'    => 'dst_MSSQL2012', //DatabaseType
                 'CompanyUsername' => 'manager', //string
                 'CompanyPassword' => 'Pa$$w0rd', //string
@@ -67,11 +71,10 @@ class SapController extends ControllerBase
             $soapRes = $this->_loginService->call('Login', $params);
             $error  = $this->_loginService->getError();
             if($error){
-               $this->log->error('Error en el login SAP: '. json_encode($error) );
+               $this->_log->error('Error en el login SAP: '. json_encode($error) );
                $this->buildErrorResponse(403, 'common.SAP_ERROR_LOGIN', $error);
-               return false;
             }
-            $this->log->info("respuesta login: ".json_encode($soapRes));
+            $this->_log->info("respuesta login: ".json_encode($soapRes));
             $this->_sessionId = $soapRes['SessionID'];
         }else{
             $this->_log->error('Error en el login SAP: '. json_encode($error) );

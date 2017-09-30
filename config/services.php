@@ -65,6 +65,15 @@ $di->setShared('tokenConfig', function () use ($config) {
 });
 
 /**
+ * Datos para la conexion a SAP mediante soap, y variables de configuracion
+ * para dicha conexion
+ */
+$di->setShared('sapConfig', function () use ($config) {
+    $sapConfig = $config->sap->toArray();
+    return $sapConfig;
+});
+
+/**
  * Database connection is created based in the parameters defined in the configuration file
  */
 $di->setShared('db', function () use ($config) {
