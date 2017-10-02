@@ -11,6 +11,10 @@ class SapController extends ControllerBase
      */
     private $_loginService;
     /**
+     * Url del wsdl del servicio para enviar las ordenes a sap
+     */
+    private $_ordersService;
+    /**
      * El id de la sesion que me da el sap, este se usa para los pedidos y para el logout
      */
     private $_sessionId = '';
@@ -21,7 +25,7 @@ class SapController extends ControllerBase
     private $_log;
 
     public function __construct(){
-        //xdebug_break();
+
         $this->_log = new Logger('josefaAPI');
         $this->_log->pushHandler(new StreamHandler(__DIR__.'/../logs/info.log', Logger::DEBUG));
         $this->_log->pushHandler(new CouchDBHandler([
@@ -32,8 +36,12 @@ class SapController extends ControllerBase
             'password' => ''
         ], Logger::DEBUG));
 
-        $this->_loginService = new nusoap_client($this->sapConfig['login_wsdl'], true); /* desarrollo */
+        //$this->_loginService = new nusoap_client($this->sapConfig['login_wsdl'], true ); /* desarrollo */
+        $this->_loginService = new nusoap_client($this->sapConfig['login_wsdl'], true, FALSE, FALSE, FALSE, FALSE, 0, 30, 'LoginServiceSoap12');
         $this->_loginService->setDebugLevel(0);
+
+        $this->_ordersService = new nusoap_client($this->sapConfig['order_wsdl'], true, FALSE, FALSE, FALSE, FALSE, 0, 30, 'OrdersServiceSoap12');
+        $this->_ordersService->setDebugLevel(0);
     }
 
     /**
@@ -41,13 +49,10 @@ class SapController extends ControllerBase
      */
     public function index()
     {
-        xdebug_break();
+
     	// Verifies if is get request
         $this->initializeGet();
         $this->_log->info("systems online");
-
-        $this->_login();
-        $this->_logout();
 
     	$this->buildSuccessResponse(200, 'common.SUCCESSFUL_REQUEST', ["info"=>"systems online"]);
     }
@@ -121,7 +126,19 @@ class SapController extends ControllerBase
      * si no se procesa retorna un false
      */
     public function order() {
+        // Verifies if is post request
+        $this->initializePost();
+
+        //Me logue en el soap de sap
+        $this->_login();
         $id = $this->_sessionId;
+        $order = $this->request->getJsonRawBody();
+
+        if (!isset($order->id)) {
+            $this->buildErrorResponse(400, 'common.INCOMPLETE_DATA_RECEIVED');
+        }elseif( count($order->productos) < 1 ){
+            $this->buildErrorResponse(400, 'common.INCOMPLETE_DATA_INSERT_AT_LEAST_ONE_PRODUCT');
+        }
 
         /**
          * El metodo "Add" del webservice pide unos headers entonces los agrego
@@ -130,35 +147,35 @@ class SapController extends ControllerBase
             'SessionID'   => $id,
             'ServiceName' => 'OrdersService'
         ];
-        $this->ordersService->setHeaders(['MsgHeader' => $paramsH]);
+        $this->_ordersService->setHeaders(['MsgHeader' => $paramsH]);
 
         /**
          * Con un reduce meto todos los productos de al array en un texto con el formato que pide el
          * webservice
          * @var array
          */
-        $products = array_reduce($order['productos'], function($carry, $item){
+        $products = array_reduce($order->productos, function($carry, $item){
             $carry .= '<DocumentLine>'
-                            . "<ItemCode>{$item['referencia']}</ItemCode>"
-                            . "<Quantity>{$item['cantidad']}</Quantity>"
-                            . "<DiscountPercent>{$item['descuento']}</DiscountPercent>"
+                            . "<ItemCode>{$item->referencia}</ItemCode>"
+                            . "<Quantity>{$item->cantidad}</Quantity>"
+                            . "<DiscountPercent>{$item->descuento}</DiscountPercent>"
                     . '</DocumentLine>';
             return $carry;
         }, '');
 
-        $error = $this->ordersService->getError();
+        $error = $this->_ordersService->getError();
         if(!$error){
             /**
              * Armo la estructura xml que le voy a enviar al metodo Add del webservice
              */
-            $soapRes = $this->ordersService->call('Add', ''
+            $soapRes = $this->_ordersService->call('Add', ''
                     . '<Add>'
                         . '<Document>'
                                 . '<Confirmed>N</Confirmed>'
-                                . "<CardCode>c{$this->cliente['codCliente']}</CardCode>"
-                                . '<Comments>Orden via motorepuestos.com.co</Comments>'
-                                . "<DocDueDate>{$order['fecha_creacion']}</DocDueDate>"
-                                . "<NumAtCard>{$order['id']}</NumAtCard>"
+                                . "<CardCode>{$order->nit_cliente}</CardCode>"
+                                . "<Comments>{$order->comentarios}</Comments>"
+                                . "<DocDueDate>{$order->fecha_creacion}</DocDueDate>"
+                                . "<NumAtCard>{$order->id}</NumAtCard>"
                                 . '<DocumentLines>'
                                     . $products
                                 . '</DocumentLines>'
@@ -170,29 +187,32 @@ class SapController extends ControllerBase
              * Me trae la peticion en xml crudo de lo que se envio por soap al sap
              * algo asi como soap envelope bla, bla
              */
-            $this->log->info('Request orden es: '.$this->ordersService->request);
+            $this->_log->info('Request orden es: '.$this->_ordersService->request);
             /**
              * Lo mismo que el anterior, pero en vez de traer la peticion, trae la respuesta
              */
-            $this->log->info('Response orden es: '.$this->ordersService->response);
+            $this->_log->info('Response orden es: '.$this->_ordersService->response);
             /**
              * Me devuelve el string con todo el debug de todos los procesos que ha hecho nusoap
              * para activarlo hay q setear el nivel de debug a mas de 0 ejemplo: "$this->ordersService->setDebugLevel(9);"
              */
-            $this->log->info('Debug orden es: '.$this->ordersService->debug_str);
+            $this->_log->info('Debug orden es: '.$this->_ordersService->debug_str);
             // Verifico que no haya ningun error, tambien reviso si existe exactamente la ruta del array que especifico
             // si esa rut ano existe significa que algo raro paso muy posiblemente un error
-            $error = $this->ordersService->getError();
+            $error = $this->_ordersService->getError();
+            //Cierro la sesion en sap ya que no es necsario tenerla abierta
+            $this->_logout();
             if($error || !isset($soapRes['DocumentParams']['DocEntry'])){
-                $this->log->error('Error al hacer el pedido SAP: '. json_encode($error) );
-                $this->log->error("respuesta del error pedido a SAP: ". json_encode($this->utf8ize($soapRes)) );
-                return false;
+                $this->_log->error('Error al hacer el pedido SAP: '. json_encode($error) );
+                $this->_log->error("respuesta del error pedido a SAP: ". json_encode($this->utf8ize($soapRes)) );
+                $this->buildErrorResponse( 400, 'common.SAP_ERROR_ORDER', ["error" => $error, "soap_res" => $this->utf8ize($soapRes)] );
             }
-            $this->log->info("respuesta del pedido a SAP: ". json_encode($this->utf8ize($soapRes)) );
-            return $soapRes['DocumentParams']['DocEntry'];
+            $this->_log->info("respuesta del pedido a SAP: ". json_encode($this->utf8ize($soapRes)) );
+            $this->buildSuccessResponse(201, 'common.CREATED_SUCCESSFULLY', $this->utf8ize($soapRes));
         }else{
-            $this->log->error('Error al procesar la orden SAP: '. json_encode($error) );
-            return false;
+            $this->_logout();
+            $this->_log->error('Error al procesar la orden SAP: '. json_encode($error) );
+            $this->buildErrorResponse(400, 'common.SAP_ERROR_ORDER', $error);
         }
     }
 

@@ -26,6 +26,7 @@ return [
     ],
     'sap' => [
         'login_wsdl' => 'http://192.168.10.102/B1WS/WebReferences/LoginService.wsdl',
-        'db_name'       => 'MERCHANDISING'
+        'order_wsdl' => 'http://192.168.10.102/B1WS/WebReferences/OrdersService.wsdl',
+        'db_name'    => 'MERCHANDISING'
     ]
 ];
