@@ -5,7 +5,7 @@ return [
         'adapter'  => 'Mysql', /* Possible Values: Mysql, Postgres, Sqlite */
         'host'     => '127.0.0.1',
         'username' => 'root',
-        'password' => 'root',
+        'password' => 'Webmaster2017',
         'dbname'   => 'dev_josefa',
         'charset'  => 'utf8',
     ],
@@ -13,13 +13,13 @@ return [
         'adapter'  => 'Mysql', /* Possible Values: Mysql, Postgres, Sqlite */
         'host'     => '127.0.0.1',
         'username' => 'root',
-        'password' => 'root',
+        'password' => 'Webmaster2017',
         'dbname'   => 'dev_josefa_log',
         'charset'  => 'utf8',
     ],
     'authentication' => [
-        'secret'          => 'your secret key to SIGN token', // This will sign the token. (still insecure)
-        'encryption_key'  => 'Your ultra secret key to ENCRYPT the token', // Secure token with an ultra password
+        'secret'          => 'que me quiebren la nalga', // This will sign the token. (still insecure)
+        'encryption_key'  => 'B<~o{X?-P~`A<iK7u%JtS4PpHR)BJtrHx9AczVmYn*a.q4Q+""K*#G1/9]%RYq+', // Secure token with an ultra password
         'expiration_time' => 86400 * 7, // One week till token expires
         'iss'             => "myproject", // Token issuer eg. www.myproject.com
         'aud'             => "myproject", // Token audience eg. www.myproject.com
