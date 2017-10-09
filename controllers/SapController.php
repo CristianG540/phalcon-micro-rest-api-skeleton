@@ -37,10 +37,12 @@ class SapController extends ControllerBase
         ], Logger::DEBUG));
 
         //$this->_loginService = new nusoap_client($this->sapConfig['login_wsdl'], true ); /* desarrollo */
-        $this->_loginService = new nusoap_client($this->sapConfig['login_wsdl'], true, FALSE, FALSE, FALSE, FALSE, 0, 30, 'LoginServiceSoap12');
+        //$this->_loginService = new nusoap_client($this->sapConfig['login_wsdl'], true, FALSE, FALSE, FALSE, FALSE, 0, 30, 'LoginServiceSoap12'); /* desarrollo */
+        $this->_loginService = new nusoap_client($this->sapConfig['login_wsdl'], true, FALSE, FALSE, FALSE, FALSE, 0, 30, 'LoginServiceSoap');
         $this->_loginService->setDebugLevel(0);
 
-        $this->_ordersService = new nusoap_client($this->sapConfig['order_wsdl'], true, FALSE, FALSE, FALSE, FALSE, 0, 30, 'OrdersServiceSoap12');
+        //$this->_ordersService = new nusoap_client($this->sapConfig['order_wsdl'], true, FALSE, FALSE, FALSE, FALSE, 0, 30, 'OrdersServiceSoap12'); /* desarrollo */
+        $this->_ordersService = new nusoap_client($this->sapConfig['order_wsdl'], true, FALSE, FALSE, FALSE, FALSE, 0, 30, 'OrdersServiceSoap');
         $this->_ordersService->setDebugLevel(0);
     }
 
