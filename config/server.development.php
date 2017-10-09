@@ -25,8 +25,8 @@ return [
         'aud'             => "myproject", // Token audience eg. www.myproject.com
     ],
     'sap' => [
-        'login_wsdl' => 'http://192.168.10.102/B1WS/WebReferences/LoginService.wsdl',
-        'order_wsdl' => 'http://192.168.10.102/B1WS/WebReferences/OrdersService.wsdl',
+        'login_wsdl' => 'http://b1ws.igbcolombia.com/B1WS/WebReferences/LoginService.wsdl',
+        'order_wsdl' => 'http://b1ws.igbcolombia.com/B1WS/WebReferences/OrdersService.wsdl',
         'db_name'    => 'PRUEBAS_IGB_WMS'
     ]
 ];
