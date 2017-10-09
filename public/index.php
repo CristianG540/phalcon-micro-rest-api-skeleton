@@ -10,7 +10,7 @@ define('APPLICATION_ENV', getenv('APPLICATION_ENV') ?: 'development');
 if (APPLICATION_ENV === 'development') {
     ini_set('display_errors', "On");
     error_reporting(E_ALL);
-    (new Phalcon\Debug)->listen();
+    //(new Phalcon\Debug)->listen();
 }
 
 define('APP_PATH', realpath('..'));

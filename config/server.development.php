@@ -27,6 +27,6 @@ return [
     'sap' => [
         'login_wsdl' => 'http://192.168.10.102/B1WS/WebReferences/LoginService.wsdl',
         'order_wsdl' => 'http://192.168.10.102/B1WS/WebReferences/OrdersService.wsdl',
-        'db_name'    => 'MERCHANDISING'
+        'db_name'    => 'PRUEBAS_IGB_WMS'
     ]
 ];
