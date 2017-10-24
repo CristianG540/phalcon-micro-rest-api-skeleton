@@ -20,7 +20,7 @@ return [
     'authentication' => [
         'secret'          => 'que me quiebren la nalga', // This will sign the token. (still insecure)
         'encryption_key'  => 'B<~o{X?-P~`A<iK7u%JtS4PpHR)BJtrHx9AczVmYn*a.q4Q+""K*#G1/9]%RYq+', // Secure token with an ultra password
-        'expiration_time' => 86400 * 7, // One week till token expires
+        'expiration_time' => 86400 * 100, // 100 days till token expires
         'iss'             => "myproject", // Token issuer eg. www.myproject.com
         'aud'             => "myproject", // Token audience eg. www.myproject.com
     ],
