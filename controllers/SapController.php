@@ -175,6 +175,7 @@ class SapController extends ControllerBase
                         . '<Document>'
                                 . '<Confirmed>N</Confirmed>'
                                 . "<CardCode>{$order->nit_cliente}</CardCode>"
+                                . "<U_TRANSP>{$order->trasportadora}</U_TRANSP>"
                                 . "<Comments>{$order->comentarios}</Comments>"
                                 . "<DocDueDate>{$order->fecha_creacion}</DocDueDate>"
                                 . "<NumAtCard>{$order->id}</NumAtCard>"
