@@ -206,7 +206,7 @@ class SapController extends ControllerBase
                 $error .= $this->_ordersService->getError();
                 //Cierro la sesion en sap ya que no es necsario tenerla abierta
                 $this->_logout();
-            } catch (Exception $exc) {
+            } catch (Throwable $exc) {
                 $error .= $exc->getTraceAsString();
             }
 
