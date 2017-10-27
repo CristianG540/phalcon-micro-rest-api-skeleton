@@ -135,7 +135,10 @@ class SapController extends ControllerBase
         $this->_login();
         $id = $this->_sessionId;
         $order = $this->request->getJsonRawBody();
-        $order->trasportadora = (isset($order->trasportadora) && $order->trasportadora) ? $order->trasportadora : "";
+
+        $order->trasportadora = isset($order->trasportadora) ? $order->trasportadora : "";
+        $order->nit_cliente = $order->nit_cliente ?? "";
+
 
         if (!isset($order->id)) {
             $this->buildErrorResponse(400, 'common.INCOMPLETE_DATA_RECEIVED');
