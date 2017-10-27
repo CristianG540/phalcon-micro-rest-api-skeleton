@@ -171,7 +171,8 @@ class SapController extends ControllerBase
             /**
              * Armo la estructura xml que le voy a enviar al metodo Add del webservice
              */
-            $soapRes = $this->_ordersService->call('Add', ''
+            try {
+                $soapRes = $this->_ordersService->call('Add', ''
                     . '<Add>'
                         . '<Document>'
                                 . '<Confirmed>N</Confirmed>'
@@ -186,26 +187,30 @@ class SapController extends ControllerBase
                         . '</Document>'
                     . '</Add>'
                     );
+                /**
+                * Me trae la peticion en xml crudo de lo que se envio por soap al sap
+                * algo asi como soap envelope bla, bla
+                */
+                $this->_log->info('Request orden es: '.$this->_ordersService->request);
+                /**
+                 * Lo mismo que el anterior, pero en vez de traer la peticion, trae la respuesta
+                 */
+                $this->_log->info('Response orden es: '.$this->_ordersService->response);
+                /**
+                 * Me devuelve el string con todo el debug de todos los procesos que ha hecho nusoap
+                 * para activarlo hay q setear el nivel de debug a mas de 0 ejemplo: "$this->ordersService->setDebugLevel(9);"
+                 */
+                $this->_log->info('Debug orden es: '.$this->_ordersService->debug_str);
+                // Verifico que no haya ningun error, tambien reviso si existe exactamente la ruta del array que especifico
+                // si esa rut ano existe significa que algo raro paso muy posiblemente un error
+                $error .= $this->_ordersService->getError();
+                //Cierro la sesion en sap ya que no es necsario tenerla abierta
+                $this->_logout();
+            } catch (Exception $exc) {
+                $error .= $exc->getTraceAsString();
+            }
 
-            /**
-             * Me trae la peticion en xml crudo de lo que se envio por soap al sap
-             * algo asi como soap envelope bla, bla
-             */
-            $this->_log->info('Request orden es: '.$this->_ordersService->request);
-            /**
-             * Lo mismo que el anterior, pero en vez de traer la peticion, trae la respuesta
-             */
-            $this->_log->info('Response orden es: '.$this->_ordersService->response);
-            /**
-             * Me devuelve el string con todo el debug de todos los procesos que ha hecho nusoap
-             * para activarlo hay q setear el nivel de debug a mas de 0 ejemplo: "$this->ordersService->setDebugLevel(9);"
-             */
-            $this->_log->info('Debug orden es: '.$this->_ordersService->debug_str);
-            // Verifico que no haya ningun error, tambien reviso si existe exactamente la ruta del array que especifico
-            // si esa rut ano existe significa que algo raro paso muy posiblemente un error
-            $error = $this->_ordersService->getError();
-            //Cierro la sesion en sap ya que no es necsario tenerla abierta
-            $this->_logout();
+
             if($error || !isset($soapRes['DocumentParams']['DocEntry'])){
                 $this->_log->error('Error al hacer el pedido SAP: '. json_encode($error) );
                 $this->_log->error("respuesta del error pedido a SAP: ". json_encode($this->utf8ize($soapRes)) );
