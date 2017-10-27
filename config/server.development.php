@@ -27,6 +27,6 @@ return [
     'sap' => [
         'login_wsdl' => 'http://b1ws.igbcolombia.com/B1WS/WebReferences/LoginService.wsdl',
         'order_wsdl' => 'http://b1ws.igbcolombia.com/B1WS/WebReferences/OrdersService.wsdl',
-        'db_name'    => 'PRUEBAS_IGB_WMS'
+        'db_name'    => 'IGB'
     ]
 ];
