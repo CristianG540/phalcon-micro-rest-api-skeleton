@@ -136,7 +136,7 @@ class SapController extends ControllerBase
         $id = $this->_sessionId;
         $order = $this->request->getJsonRawBody();
 
-        $order->trasportadora = isset($order->trasportadora) ? $order->trasportadora : "";
+        $order->trasportadora = $order->trasportadora ?? "";
         $order->nit_cliente = $order->nit_cliente ?? "";
 
 
