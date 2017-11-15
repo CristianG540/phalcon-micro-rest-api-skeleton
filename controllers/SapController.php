@@ -36,6 +36,8 @@ class SapController extends ControllerBase
             'password' => ''
         ], Logger::DEBUG));
 
+        Monolog\Logger::setTimezone(new \DateTimeZone('America/Bogota'));
+
         //$this->_loginService = new nusoap_client($this->sapConfig['login_wsdl'], true ); /* desarrollo */
         //$this->_loginService = new nusoap_client($this->sapConfig['login_wsdl'], true, FALSE, FALSE, FALSE, FALSE, 0, 30, 'LoginServiceSoap12'); /* desarrollo */
         $this->_loginService = new nusoap_client($this->sapConfig['login_wsdl'], true, FALSE, FALSE, FALSE, FALSE, 0, 30, 'LoginServiceSoap');
