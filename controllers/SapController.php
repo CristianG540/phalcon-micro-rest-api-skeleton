@@ -132,6 +132,110 @@ class SapController extends ControllerBase
     public function order() {
         // Verifies if is post request
         $this->initializePost();
+        //Me logue en el soap de sap
+        $this->_login();
+        $id = $this->_sessionId;
+        $order = $this->request->getJsonRawBody();
+        $order->trasportadora = $order->trasportadora ?? "";
+        $order->nit_cliente = $order->nit_cliente ?? "";
+        if (!isset($order->id)) {
+            $this->buildErrorResponse(400, 'common.INCOMPLETE_DATA_RECEIVED');
+        }elseif( count($order->productos) < 1 ){
+            $this->buildErrorResponse(400, 'common.INCOMPLETE_DATA_INSERT_AT_LEAST_ONE_PRODUCT');
+        }
+        /**
+         * El metodo "Add" del webservice pide unos headers entonces los agrego
+         */
+        $paramsH = [
+            'SessionID'   => $id,
+            'ServiceName' => 'OrdersService'
+        ];
+        $this->_ordersService->setHeaders(['MsgHeader' => $paramsH]);
+        /**
+         * Con un reduce meto todos los productos de al array en un texto con el formato que pide el
+         * webservice
+         * @var array
+         */
+        $products = array_reduce($order->productos, function($carry, $item){
+            $carry .= '<DocumentLine>'
+                            . "<ItemCode>{$item->referencia}</ItemCode>"
+                            . "<Quantity>{$item->cantidad}</Quantity>"
+                            . "<DiscountPercent>{$item->descuento}</DiscountPercent>"
+                    . '</DocumentLine>';
+            return $carry;
+        }, '');
+        $error = $this->_ordersService->getError();
+        if(!$error){
+            /**
+             * Armo la estructura xml que le voy a enviar al metodo Add del webservice
+             */
+            try {
+                $soapRes = $this->_ordersService->call('Add', ''
+                    . '<Add>'
+                        . '<Document>'
+                                . '<Confirmed>N</Confirmed>'
+                                . "<CardCode>{$order->nit_cliente}</CardCode>"
+                                . "<U_TRANSP>{$order->trasportadora}</U_TRANSP>"
+                                . "<Comments>{$order->comentarios}</Comments>"
+                                . "<DocDueDate>{$order->fecha_creacion}</DocDueDate>"
+                                . "<NumAtCard>{$order->id}</NumAtCard>"
+                                . '<DocumentLines>'
+                                    . $products
+                                . '</DocumentLines>'
+                        . '</Document>'
+                    . '</Add>'
+                    );
+                /**
+                * Me trae la peticion en xml crudo de lo que se envio por soap al sap
+                * algo asi como soap envelope bla, bla
+                */
+                $this->_log->info('Request orden es: '.$this->_ordersService->request);
+                /**
+                 * Lo mismo que el anterior, pero en vez de traer la peticion, trae la respuesta
+                 */
+                $this->_log->info('Response orden es: '.$this->_ordersService->response);
+                /**
+                 * Me devuelve el string con todo el debug de todos los procesos que ha hecho nusoap
+                 * para activarlo hay q setear el nivel de debug a mas de 0 ejemplo: "$this->ordersService->setDebugLevel(9);"
+                 */
+                $this->_log->info('Debug orden es: '.$this->_ordersService->debug_str);
+                // Verifico que no haya ningun error, tambien reviso si existe exactamente la ruta del array que especifico
+                // si esa rut ano existe significa que algo raro paso muy posiblemente un error
+                $error .= $this->_ordersService->getError();
+                //Cierro la sesion en sap ya que no es necsario tenerla abierta
+                $this->_logout();
+            } catch (Throwable $exc) {
+                $error .= $exc->getTraceAsString();
+            }
+            if($error || !isset($soapRes['DocumentParams']['DocEntry'])){
+                $this->_log->error('Error al hacer el pedido SAP: '. json_encode($error) );
+                $this->_log->error("respuesta del error pedido a SAP: ". json_encode($this->utf8ize($soapRes)) );
+                $this->buildErrorResponse( 400, 'common.SAP_ERROR_ORDER', ["error" => $error, "soap_res" => $this->utf8ize($soapRes)] );
+            }
+            $this->_log->info("respuesta del pedido a SAP: ". json_encode($this->utf8ize($soapRes)) );
+            $this->buildSuccessResponse(201, 'common.CREATED_SUCCESSFULLY', $this->utf8ize($soapRes));
+        }else{
+            $this->_logout();
+            $this->_log->error('Error al procesar la orden SAP: '. json_encode($error) );
+            $this->buildErrorResponse(400, 'common.SAP_ERROR_ORDER', $error);
+        }
+    }
+
+    /**
+     * Este metodo hace lo mismo que el de ordenes pero mejorado,evitando que las ordenes se repitan
+     * duplique el metodo por si cambiaba el anterior, los usuarios de la aplicacion que no la tengan actualizada
+     * van a comenzar a tener errores
+     * @param  array $order     Este array recibe la orden que llega desde la pagina de prestashop
+     * tiene los productos, la fecha en que se creo y el id de la orden
+     * @param  string $sessionId Opcionalmente se le puede enviar el id de la sesion en sap con el que
+     * se quiere procesar la orden
+     * @return integer  me regresa el numero de la orden dependiendo de si se proceso o no la orden
+     * si no se procesa retorna un false
+     */
+    public function order_v2() {
+
+        // Verifies if is post request
+        $this->initializePost();
 
         //Me logue en el soap de sap
         $this->_login();
@@ -140,12 +244,31 @@ class SapController extends ControllerBase
 
         $order->trasportadora = $order->trasportadora ?? "";
         $order->nit_cliente = $order->nit_cliente ?? "";
-
+        $order->asesor = $order->asesor ?? "";
+        $order->asesor_id = $order->asesor_id ?? "";
 
         if (!isset($order->id)) {
             $this->buildErrorResponse(400, 'common.INCOMPLETE_DATA_RECEIVED');
         }elseif( count($order->productos) < 1 ){
             $this->buildErrorResponse(400, 'common.INCOMPLETE_DATA_INSERT_AT_LEAST_ONE_PRODUCT');
+        }
+
+        /**
+         * busque en la bd si la orden ya se creo para el asesor indicado
+         * si la orden ya existe entonces cancelo la operacion
+         */
+        $prevOrders = Orders::count(
+            [
+                'asesor = :asesor: AND order_app_id = :order:',
+                'bind' => [
+                    'asesor' => $order->asesor,
+                    'order'  => $order->id
+                ]
+            ]
+        );
+
+        if ( $prevOrders > 0 ) {
+            $this->buildErrorResponse(400, 'common.ORDER_DUPLICATED');
         }
 
         /**
@@ -221,6 +344,36 @@ class SapController extends ControllerBase
                 $this->_log->error("respuesta del error pedido a SAP: ". json_encode($this->utf8ize($soapRes)) );
                 $this->buildErrorResponse( 400, 'common.SAP_ERROR_ORDER', ["error" => $error, "soap_res" => $this->utf8ize($soapRes)] );
             }
+            // Start a transaction
+            $this->db->begin();
+            try {
+                $newOrder = new Orders();
+                $newOrder->asesor = $order->asesor;
+                $newOrder->asesor_id = $order->asesor_id;
+                $newOrder->order_app_id = $order->id;
+                $newOrder->productos = json_encode($order->productos);
+                $newOrder->cliente = $order->nit_cliente;
+                $newOrder->observaciones = $order->comentarios;
+
+                if ($newOrder->save()) {
+                    // Commit the transaction
+                    $this->db->commit();
+
+                }else{
+                    $this->db->rollback();
+                    // Send errors
+                    $errors = array();
+                    foreach ($newOrder->getMessages() as $message) {
+                        $errors[] = $message->getMessage();
+                    }
+                    $this->buildErrorResponse(400, 'common.ORDER_COULD_NOT_BE_CREATED', $errors);
+                }
+
+            } catch (Throwable $exc) {
+                $this->db->rollback();
+                $this->buildErrorResponse( 400, 'common.ERROR_ORDERS_MYSQLBD', ["error" => $exc->getTraceAsString()] );
+            }
+
             $this->_log->info("respuesta del pedido a SAP: ". json_encode($this->utf8ize($soapRes)) );
             $this->buildSuccessResponse(201, 'common.CREATED_SUCCESSFULLY', $this->utf8ize($soapRes));
         }else{

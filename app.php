@@ -100,6 +100,8 @@ $sap->setPrefix('/sap');
 $sap->get('/', 'index');
 // Crea ordenes nuevas en sap mediante SOAP
 $sap->post('/order', 'order');
+// Crea ordenes nuevas en sap mediante SOAP
+$sap->post('/order_v2', 'order_v2');
 // Adds sap routes to $app
 $app->mount($sap);
 
