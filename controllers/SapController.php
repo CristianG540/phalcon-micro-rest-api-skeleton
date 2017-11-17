@@ -253,19 +253,24 @@ class SapController extends ControllerBase
             $this->buildErrorResponse(400, 'common.INCOMPLETE_DATA_INSERT_AT_LEAST_ONE_PRODUCT');
         }
 
-        /**
-         * busque en la bd si la orden ya se creo para el asesor indicado
-         * si la orden ya existe entonces cancelo la operacion
-         */
-        $prevOrders = Orders::count(
-            [
-                'asesor = :asesor: AND order_app_id = :order:',
-                'bind' => [
-                    'asesor' => $order->asesor,
-                    'order'  => $order->id
+        try {
+            /**
+             * busque en la bd si la orden ya se creo para el asesor indicado
+             * si la orden ya existe entonces cancelo la operacion
+             */
+            $prevOrders = Orders::count(
+                [
+                    'asesor = :asesor: AND order_app_id = :order:',
+                    'bind' => [
+                        'asesor' => $order->asesor,
+                        'order'  => $order->id
+                    ]
                 ]
-            ]
-        );
+            );
+        } catch (Throwable $exc) {
+            $this->buildErrorResponse( 400, 'common.ERROR_SEARCH_DUPLICATED_ORDERS', ["error" => $exc->getTraceAsString()] );
+            $this->_log->error('common.ERROR_SEARCH_DUPLICATED_ORDERS: '. json_encode($this->utf8ize(["error" => $exc->getTraceAsString()])) );
+        }
 
         if ( $prevOrders > 0 ) {
             $this->buildErrorResponse(400, 'common.ORDER_DUPLICATED');
@@ -367,11 +372,13 @@ class SapController extends ControllerBase
                         $errors[] = $message->getMessage();
                     }
                     $this->buildErrorResponse(400, 'common.ORDER_COULD_NOT_BE_CREATED', $errors);
+                    $this->_log->error('common.ORDER_COULD_NOT_BE_CREATED: '. json_encode($this->utf8ize($soapRes)) );
                 }
 
             } catch (Throwable $exc) {
                 $this->db->rollback();
                 $this->buildErrorResponse( 400, 'common.ERROR_ORDERS_MYSQLBD', ["error" => $exc->getTraceAsString()] );
+                $this->_log->error('common.ERROR_ORDERS_MYSQLBD: '. json_encode($this->utf8ize(["error" => $exc->getTraceAsString()])) );
             }
 
             $this->_log->info("respuesta del pedido a SAP: ". json_encode($this->utf8ize($soapRes)) );
