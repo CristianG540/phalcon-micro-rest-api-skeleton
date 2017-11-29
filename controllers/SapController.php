@@ -400,37 +400,59 @@ class SapController extends ControllerBase
      * @param type $order
      */
     private function saveOrderLog($order){
-        // Start a transaction
-        $this->db->begin();
         try {
-            $newOrderLog = new OrdersLog();
-            $newOrderLog->asesor = $order->asesor;
-            $newOrderLog->asesor_id = $order->asesor_id;
-            $newOrderLog->order_app_id = $order->id;
-            $newOrderLog->productos = json_encode($order->productos);
-            $newOrderLog->cliente = $order->nit_cliente;
-            $newOrderLog->observaciones = $order->comentarios;
-
-            if ($newOrderLog->save()) {
-                // Commit the transaction
-                $this->db->commit();
-
-            }else{
-                $this->db->rollback();
-                // Send errors
-                $errors = array();
-                foreach ($newOrderLog->getMessages() as $message) {
-                    $errors[] = $message->getMessage();
-                }
-                $this->buildErrorResponse(400, 'common.ORDER_LOG_COULD_NOT_BE_CREATED', $errors);
-                $this->_log->error('common.ORDER_LOG_COULD_NOT_BE_CREATED: '. json_encode($this->utf8ize($order)) );
-            }
-
+            /**
+             * busque en la bd si la orden ya se creo para el asesor indicado
+             * si la orden ya existe entonces cancelo la operacion
+             */
+            $prevOrders = OrdersLog::count(
+                [
+                    'asesor = :asesor: AND order_app_id = :order:',
+                    'bind' => [
+                        'asesor' => $order->asesor,
+                        'order'  => $order->id
+                    ]
+                ]
+            );
         } catch (Throwable $exc) {
-            $this->db->rollback();
-            $this->buildErrorResponse( 400, 'common.ERROR_ORDERS_MYSQLBD', ["error" => $exc->getTraceAsString()] );
-            $this->_log->error('common.ERROR_ORDERS_LOG_MYSQLBD: '. json_encode($this->utf8ize(["error" => $exc->getTraceAsString()])) );
+            $this->buildErrorResponse( 400, 'common.ERROR_SEARCH_DUPLICATED_ORDERS', ["error" => $exc->getTraceAsString()] );
+            $this->_log->error('common.ERROR_SEARCH_DUPLICATED_ORDERS: '. json_encode($this->utf8ize(["error" => $exc->getTraceAsString()])) );
         }
+
+        if ( $prevOrders == 0 ) {
+            // Start a transaction
+            $this->db->begin();
+            try {
+                $newOrderLog = new OrdersLog();
+                $newOrderLog->asesor = $order->asesor;
+                $newOrderLog->asesor_id = $order->asesor_id;
+                $newOrderLog->order_app_id = $order->id;
+                $newOrderLog->productos = json_encode($order->productos);
+                $newOrderLog->cliente = $order->nit_cliente;
+                $newOrderLog->observaciones = $order->comentarios;
+
+                if ($newOrderLog->save()) {
+                    // Commit the transaction
+                    $this->db->commit();
+
+                }else{
+                    $this->db->rollback();
+                    // Send errors
+                    $errors = array();
+                    foreach ($newOrderLog->getMessages() as $message) {
+                        $errors[] = $message->getMessage();
+                    }
+                    $this->buildErrorResponse(400, 'common.ORDER_LOG_COULD_NOT_BE_CREATED', $errors);
+                    $this->_log->error('common.ORDER_LOG_COULD_NOT_BE_CREATED: '. json_encode($this->utf8ize($order)) );
+                }
+
+            } catch (Throwable $exc) {
+                $this->db->rollback();
+                $this->buildErrorResponse( 400, 'common.ERROR_ORDERS_MYSQLBD', ["error" => $exc->getTraceAsString()] );
+                $this->_log->error('common.ERROR_ORDERS_LOG_MYSQLBD: '. json_encode($this->utf8ize(["error" => $exc->getTraceAsString()])) );
+            }
+        }
+
     }
 
 }
