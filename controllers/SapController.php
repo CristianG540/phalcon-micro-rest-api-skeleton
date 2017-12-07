@@ -28,13 +28,6 @@ class SapController extends ControllerBase
 
         $this->_log = new Logger('josefaAPI');
         $this->_log->pushHandler(new StreamHandler(__DIR__.'/../logs/info.log', Logger::DEBUG));
-        $this->_log->pushHandler(new CouchDBHandler([
-            'host'     => '45.77.74.23',
-            'port'     => 5984,
-            'dbname'   => 'josefalogger',
-            'username' => '',
-            'password' => ''
-        ], Logger::DEBUG));
 
         Monolog\Logger::setTimezone(new \DateTimeZone('America/Bogota'));
 
