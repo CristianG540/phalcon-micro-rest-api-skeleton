@@ -49,7 +49,7 @@ class SapController extends ControllerBase
 
     	// Verifies if is get request
         $this->initializeGet();
-        $this->_log->info("systems online");
+        //$this->_log->info("systems online");
 
     	$this->buildSuccessResponse(200, 'common.SUCCESSFUL_REQUEST', ["info"=>"systems online"]);
     }
