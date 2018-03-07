@@ -489,7 +489,7 @@ class SapController extends ControllerBase
              * Leo el archivo csv que contiene solo los productos por modificar
              * mediante la libreria csv de phpleague
              */
-            $csv = Reader::createFromPath(sys_get_temp_dir() . DS . 'fz3temp-3' . DS . 'invoice.txt', 'r');
+            $csv = Reader::createFromPath( DS.'var'.DS.'www'.DS.'html'.DS.'reactphp-couchdb-importer'.DS.'observados'.DS.'product.txt', 'r');
             $csv->setDelimiter(';');
             $csv->setHeaderOffset(0); //set the CSV header offset
 
