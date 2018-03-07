@@ -102,6 +102,8 @@ $sap->get('/', 'index');
 $sap->post('/order', 'order');
 // Crea ordenes nuevas en sap mediante SOAP
 $sap->post('/order_v2', 'order_v2');
+// Lee un csv con datos de cartera
+$sap->post('/cartera', 'cartera');
 // Adds sap routes to $app
 $app->mount($sap);
 

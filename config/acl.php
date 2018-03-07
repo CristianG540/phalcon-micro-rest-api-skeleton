@@ -34,7 +34,7 @@ $arrResources = [
         'Profile' => ['index','update','changePassword'],
         'Users'   => ['index','create','get','search','update','logout'],
         'Cities'  => ['index','create','get','ajax','update','delete'],
-        'Sap'     => ['index','order','order_v2']
+        'Sap'     => ['index','order','order_v2','cartera']
     ],
     'Superuser'=>[
         'Users'=>['changePassword'],
