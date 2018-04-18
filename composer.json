@@ -13,6 +13,7 @@
         "firebase/php-jwt": "^5.0",
         "econea/nusoap": "dev-dev-sapfix",
         "monolog/monolog": "^1.23",
-        "league/csv": "^9.1"
+        "league/csv": "^9.1",
+        "phpmailer/phpmailer": "~6.0"
     }
 }
