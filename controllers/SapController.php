@@ -267,7 +267,7 @@ class SapController extends ControllerBase
                     // Commit the transaction
                     $this->db->commit();
 
-                    //$this->sendEmailLog($order);
+                    $this->sendEmailLog($order);
 
                 }else{
                     $this->db->rollback();
