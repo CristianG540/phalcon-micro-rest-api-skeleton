@@ -542,11 +542,14 @@ class SapController extends ControllerBase
         }, '');
         $body = file_get_contents(__DIR__.'/../public/email.html');
         $body = str_replace('%productos%', $products, $body);
+        $body = str_replace('%codigo%', $order->id, $body);
+        $body = str_replace('%cliente%', $order->nit_cliente, $body);
+        $body = str_replace('%observaciones%', $order->comentarios, $body);
 
         $mail = new PHPMailer(true);                              // Passing `true` enables exceptions
         try {
             //Server settings
-            $mail->SMTPDebug = 2;                                 // Enable verbose debug output
+            $mail->SMTPDebug = 0;                                 // Enable verbose debug output
             $mail->isSMTP();                                      // Set mailer to use SMTP
             $mail->Host = 'smtp.gmail.com';                       // Specify main and backup SMTP servers
             $mail->SMTPAuth = true;                               // Enable SMTP authentication
