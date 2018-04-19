@@ -5,7 +5,7 @@ return [
         'adapter'  => 'Mysql', /* Possible Values: Mysql, Postgres, Sqlite */
         'host'     => '127.0.0.1',
         'username' => 'root',
-        'password' => 'Webmaster2017',
+        'password' => 'root',
         'dbname'   => 'dev_josefa',
         'charset'  => 'utf8',
     ],
@@ -25,8 +25,8 @@ return [
         'aud'             => "myproject", // Token audience eg. www.myproject.com
     ],
     'sap' => [
-        'login_wsdl' => 'http://b1ws.igbcolombia.com/B1WS/WebReferences/LoginService.wsdl',
-        'order_wsdl' => 'http://b1ws.igbcolombia.com/B1WS/WebReferences/OrdersService.wsdl',
-        'db_name'    => 'IGB'
+        'login_wsdl' => 'http://192.168.10.102/B1WS/WebReferences/LoginService.wsdl',
+        'order_wsdl' => 'http://192.168.10.102/B1WS/WebReferences/OrdersService.wsdl',
+        'db_name'    => 'PRUEBAS_IGB_WMS'
     ]
 ];
