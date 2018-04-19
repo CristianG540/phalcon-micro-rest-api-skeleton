@@ -532,6 +532,17 @@ class SapController extends ControllerBase
     }
 
     private function sendEmailLog($order) {
+
+        $products = array_reduce($order->productos, function($carry, $item){
+            $carry .= '<tr>'
+                            . "<td style='font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;text-align:center;vertical-align:top'>{$item->referencia}</th>"
+                            . "<td style='font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;text-align:center;vertical-align:top'>{$item->cantidad}</th>"
+                    . '</tr>';
+            return $carry;
+        }, '');
+        $body = file_get_contents(__DIR__.'/../public/email.html');
+        $body = str_replace('%productos%', $products, $body);
+
         $mail = new PHPMailer(true);                              // Passing `true` enables exceptions
         try {
             //Server settings
@@ -552,8 +563,7 @@ class SapController extends ControllerBase
             //Content
             $mail->isHTML(true);                                  // Set email format to HTML
             $mail->Subject = 'Informacion pedido IGB APP';
-            $mail->Body    = 'This is the HTML message body <b>in bold!</b>';
-            $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+            $mail->Body    = $body;
 
             $mail->send();
 
@@ -561,6 +571,7 @@ class SapController extends ControllerBase
         } catch (Exception $e) {
             $this->_log->error('Error al enviar el e-mail: '. json_encode($e) );
         }
+
     }
 
     /**
