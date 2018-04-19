@@ -146,6 +146,7 @@ class SapController extends ControllerBase
         $order->asesor = $order->asesor ?? "No se ingreso";
         $order->asesor_id = $order->asesor_id ?? "No se ingreso";
         $order->user_email = $order->user_email ?? "No se ingreso";
+        $order->total = $order->total ?? "No se ingreso";
 
         if (!isset($order->id)) {
             $this->buildErrorResponse(400, 'common.INCOMPLETE_DATA_RECEIVED');
@@ -545,6 +546,7 @@ class SapController extends ControllerBase
         $body = str_replace('%codigo%', $order->id, $body);
         $body = str_replace('%cliente%', $order->nit_cliente, $body);
         $body = str_replace('%observaciones%', $order->comentarios, $body);
+        $body = str_replace('%total%', $order->total, $body);
 
         $mail = new PHPMailer(true);                              // Passing `true` enables exceptions
         try {
