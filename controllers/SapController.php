@@ -129,7 +129,6 @@ class SapController extends ControllerBase
      * se quiere procesar la orden
      * @return integer  me regresa el numero de la orden dependiendo de si se proceso o no la orden
      * si no se procesa retorna un false
-     * !!!!!!!!!!!!!!LEGACY!!!!!!!!!
      */
     public function order() {
 
@@ -537,7 +536,9 @@ class SapController extends ControllerBase
         $products = array_reduce($order->productos, function($carry, $item){
             $carry .= '<tr>'
                             . "<td style='font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;text-align:center;vertical-align:top'>{$item->referencia}</th>"
+                            . "<td style='font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;text-align:center;vertical-align:top'>{$item->titulo}</th>"
                             . "<td style='font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;text-align:center;vertical-align:top'>{$item->cantidad}</th>"
+                            . "<td style='font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;text-align:center;vertical-align:top'>{$item->total}</th>"
                     . '</tr>';
             return $carry;
         }, '');
