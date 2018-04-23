@@ -535,6 +535,7 @@ class SapController extends ControllerBase
 
         $products = array_reduce($order->productos, function($carry, $item){
             $item->titulo = (isset($item->titulo)) ? $item->titulo : "";
+            $item->total = (isset($item->total)) ? $item->total : "";
             $carry .= '<tr>'
                             . "<td style='font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;text-align:center;vertical-align:top'>{$item->referencia}</th>"
                             . "<td style='font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;text-align:center;vertical-align:top'>{$item->titulo}</th>"
