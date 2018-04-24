@@ -651,7 +651,7 @@ class SapController extends ControllerBase
         $this->initializePost();
         $data = $this->request->getJsonRawBody();
 
-        try {
+        /*try {*/
             /**
              * busque en la bd si el nit ya solicito una cuenta
              * si es asi regreso un error para evitar spam
@@ -664,10 +664,10 @@ class SapController extends ControllerBase
                     ]
                 ]
             );
-        } catch (Throwable $exc) {
-            $this->buildErrorResponse( 400, 'common.ERROR_SEARCH_DUPLICATED', ["error" => $exc->getTraceAsString()] );
+        /*} catch (Throwable $exc) {
+            $this->buildErrorResponse( 400, 'common.ERROR_SEARCH_DUPLICATED', ["error" => $exc->getTraceAsString(),] );
             $this->_log->error('common.ERROR_SEARCH_DUPLICATED: '. json_encode($this->utf8ize(["error" => $exc->getTraceAsString()])) );
-        }
+        }*/
 
         if ( $solicitudesPrev == 0 ) {
             // Start a transaction
