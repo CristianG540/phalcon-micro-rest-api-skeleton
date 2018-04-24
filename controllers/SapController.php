@@ -651,7 +651,7 @@ class SapController extends ControllerBase
         $this->initializePost();
         $data = $this->request->getJsonRawBody(true);
 
-        /*try {*/
+        try {
             /**
              * busque en la bd si el nit ya solicito una cuenta
              * si es asi regreso un error para evitar spam
@@ -664,10 +664,10 @@ class SapController extends ControllerBase
                     ]
                 ]
             );
-        /*} catch (Throwable $exc) {
+        } catch (Throwable $exc) {
             $this->buildErrorResponse( 400, 'common.ERROR_SEARCH_DUPLICATED', ["error" => $exc->getTraceAsString(),] );
             $this->_log->error('common.ERROR_SEARCH_DUPLICATED: '. json_encode($this->utf8ize(["error" => $exc->getTraceAsString()])) );
-        }*/
+        }
 
         if ( $solicitudesPrev == 0 ) {
             // Start a transaction
@@ -705,7 +705,7 @@ class SapController extends ControllerBase
                 foreach ($newRequest->getMessages() as $message) {
                     $errors[] = $message->getMessage();
                 }
-                $this->buildErrorResponse( 400, 'common.ERROR_ORDERS_MYSQLBD', ["error" => $exc->getTraceAsString(), "errors"=>$errors, "data"=>$solicitudesPrev] );
+                $this->buildErrorResponse( 400, 'common.ERROR_ORDERS_MYSQLBD', ["error" => $exc->getTraceAsString(), "errors"=>$exc, "data"=>$solicitudesPrev] );
                 $this->_log->error('common.ERROR_ORDERS_LOG_MYSQLBD: '. json_encode($this->utf8ize(["error" => $exc->getTraceAsString()])) );
             }
         }
