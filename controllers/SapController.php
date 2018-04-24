@@ -705,9 +705,11 @@ class SapController extends ControllerBase
                 foreach ($newRequest->getMessages() as $message) {
                     $errors[] = $message->getMessage();
                 }
-                $this->buildErrorResponse( 400, 'common.ERROR_ORDERS_MYSQLBD', ["error" => $exc->getTraceAsString(), "errors"=>$exc, "data"=>$solicitudesPrev] );
+                $this->buildErrorResponse( 400, 'common.ERROR_ORDERS_MYSQLBD', ["error" => $exc->getTraceAsString(), "errors"=>$exc, "data"=>$data] );
                 $this->_log->error('common.ERROR_ORDERS_LOG_MYSQLBD: '. json_encode($this->utf8ize(["error" => $exc->getTraceAsString()])) );
             }
+        } else {
+            $this->buildErrorResponse( 400, 'common.ERROR_SEARCH_DUPLICATED_NIT', [ "data"=>$data] );
         }
 
     }
