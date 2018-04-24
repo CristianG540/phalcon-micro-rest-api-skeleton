@@ -645,5 +645,67 @@ class SapController extends ControllerBase
         }
 
     }
+
+    public function request_account() {
+        // Verifies if is post request
+        $this->initializePost();
+        $data = $this->request->getJsonRawBody();
+
+        try {
+            /**
+             * busque en la bd si el nit ya solicito una cuenta
+             * si es asi regreso un error para evitar spam
+             */
+            $solicitudesPrev = LogCuentasSolicitadas::count(
+                [
+                    'nit = :nit:',
+                    'bind' => [
+                        'nit' => $data->nit
+                    ]
+                ]
+            );
+        } catch (Throwable $exc) {
+            $this->buildErrorResponse( 400, 'common.ERROR_SEARCH_DUPLICATED', ["error" => $exc->getTraceAsString()] );
+            $this->_log->error('common.ERROR_SEARCH_DUPLICATED: '. json_encode($this->utf8ize(["error" => $exc->getTraceAsString()])) );
+        }
+
+        if ( $solicitudesPrev == 0 ) {
+            // Start a transaction
+            $this->db->begin();
+            try {
+                $newRequest = new LogCuentasSolicitadas();
+                $newRequest->nombre = $data->nombre;
+                $newRequest->email = $data->email;
+                $newRequest->nit = $data->nit;
+                $newRequest->telefono = $data->telefono;
+                $newRequest->ciudad = $data->ciudad;
+                $newRequest->motivo = $data->motivo;
+                $newRequest->observacion = isset($data->observacion) ? $data->observacion : "";
+
+                if ($newRequest->save()) {
+                    // Commit the transaction
+                    $this->db->commit();
+                    $this->buildSuccessResponse(200, 'common.SUCCESSFUL_REQUEST', $data);
+
+                }else{
+                    $this->db->rollback();
+                    // Send errors
+                    $errors = array();
+                    foreach ($newRequest->getMessages() as $message) {
+                        $errors[] = $message->getMessage();
+                    }
+                    $this->buildErrorResponse(400, 'common.REQUEST_COULD_NOT_BE_CREATED', $errors);
+                    $this->_log->error('common.REQUEST_COULD_NOT_BE_CREATED: '. json_encode($this->utf8ize($order)) );
+                }
+
+            } catch (Throwable $exc) {
+                $this->db->rollback();
+                $this->buildErrorResponse( 400, 'common.ERROR_ORDERS_MYSQLBD', ["error" => $exc->getTraceAsString()] );
+                $this->_log->error('common.ERROR_ORDERS_LOG_MYSQLBD: '. json_encode($this->utf8ize(["error" => $exc->getTraceAsString()])) );
+            }
+        }
+
+    }
+
 }
 

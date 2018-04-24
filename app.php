@@ -104,6 +104,8 @@ $sap->post('/order', 'order');
 $sap->post('/order_v2', 'order_v2');
 // Lee un csv con datos de cartera
 $sap->post('/cartera', 'cartera');
+// Se encarga de administrar las peticiones para cuentas nuevas
+$sap->post('/request_account', 'request_account');
 // Adds sap routes to $app
 $app->mount($sap);
 
