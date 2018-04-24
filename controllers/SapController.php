@@ -660,7 +660,7 @@ class SapController extends ControllerBase
                 [
                     'nit = :nit:',
                     'bind' => [
-                        'nit' => $data->nit
+                        'nit' => $data["nit"]
                     ]
                 ]
             );
@@ -674,13 +674,13 @@ class SapController extends ControllerBase
             $this->db->begin();
             try {
                 $newRequest = new LogCuentasSolicitadas();
-                $newRequest->nombre = $data->nombre;
-                $newRequest->email = $data->email;
-                $newRequest->nit = $data->nit;
-                $newRequest->telefono = $data->telefono;
-                $newRequest->ciudad = $data->ciudad;
-                $newRequest->motivo = $data->motivo;
-                $newRequest->observacion = isset($data->observacion) ? $data->observacion : "";
+                $newRequest->nombre = $data["nombre"];
+                $newRequest->email = $data["email"];
+                $newRequest->nit = $data["nit"];
+                $newRequest->telefono = $data["telefono"];
+                $newRequest->ciudad = $data["ciudad"];
+                $newRequest->motivo = $data["motivo"];
+                $newRequest->observacion = isset($data["observacion"]) ? $data["observacion"] : "";
 
                 if ($newRequest->save()) {
                     // Commit the transaction
@@ -705,7 +705,7 @@ class SapController extends ControllerBase
                 foreach ($newRequest->getMessages() as $message) {
                     $errors[] = $message->getMessage();
                 }
-                $this->buildErrorResponse( 400, 'common.ERROR_ORDERS_MYSQLBD', ["error" => $exc->getTraceAsString(), "errors"=>$errors, "data"=>$data] );
+                $this->buildErrorResponse( 400, 'common.ERROR_ORDERS_MYSQLBD', ["error" => $exc->getTraceAsString(), "errors"=>$errors, "data"=>$solicitudesPrev] );
                 $this->_log->error('common.ERROR_ORDERS_LOG_MYSQLBD: '. json_encode($this->utf8ize(["error" => $exc->getTraceAsString()])) );
             }
         }
