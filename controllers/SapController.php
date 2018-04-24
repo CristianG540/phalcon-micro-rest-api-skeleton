@@ -649,7 +649,7 @@ class SapController extends ControllerBase
     public function request_account() {
         // Verifies if is post request
         $this->initializePost();
-        $data = $this->request->getJsonRawBody();
+        $data = $this->request->getJsonRawBody(true);
 
         /*try {*/
             /**
