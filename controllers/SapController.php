@@ -701,7 +701,7 @@ class SapController extends ControllerBase
             } catch (Throwable $exc) {
                 $this->db->rollback();
                 $this->buildErrorResponse( 400, 'common.ERROR_ORDERS_MYSQLBD', ["error" => $exc->getTraceAsString()] );
-                $this->_log->error('common.ERROR_ORDERS_LOG_MYSQLBD: '. json_encode($this->utf8ize(["error" => $exc->getTraceAsString()])) );
+                $this->_log->error('common.ERROR_ORDERS_LOG_MYSQLBD: '. json_encode($this->utf8ize(["error" => $exc->getTraceAsString(), "data"=>$data])) );
             }
         }
 
