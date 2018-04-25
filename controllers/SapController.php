@@ -687,6 +687,44 @@ class SapController extends ControllerBase
                     $this->db->commit();
                     $this->buildSuccessResponse(200, 'common.SUCCESSFUL_REQUEST', $data);
 
+                    $body = file_get_contents(__DIR__.'/../public/email_request_account.html');
+                    $body = str_replace('%nombre%', $data["nombre"], $body);
+                    $body = str_replace('%email%', $data["email"], $body);
+                    $body = str_replace('%nit%', $data["nit"], $body);
+                    $body = str_replace('%telefono%', $data["telefono"], $body);
+                    $body = str_replace('%ciudad%', $data["ciudad"], $body);
+                    $body = str_replace('%motivo%', $data["motivo"], $body);
+                    $body = str_replace('%observacion%', isset($data["observacion"]) ? $data["observacion"] : "", $body);
+
+                    $mail = new PHPMailer(true);                              // Passing `true` enables exceptions
+                    try {
+                        //Server settings
+                        $mail->SMTPDebug = 0;                                 // Enable verbose debug output
+                        $mail->isSMTP();                                      // Set mailer to use SMTP
+                        $mail->Host = 'smtp.gmail.com';                       // Specify main and backup SMTP servers
+                        $mail->SMTPAuth = true;                               // Enable SMTP authentication
+                        $mail->Username = 'desarrollowebigb@gmail.com';       // SMTP username
+                        $mail->Password = 'Webmaster2017#@';                  // SMTP password
+                        $mail->SMTPSecure = 'ssl';                            // Enable TLS encryption, `ssl` also accepted
+                        $mail->Port = 465;                                    // TCP port to connect to
+
+                        //Recipients
+                        $mail->setFrom('desarrollo@igbcolombia.com', 'Desarrollo');
+                        $mail->addAddress("cristianneatproy@gmail.com", 'Telemercadeo');     // Add a recipient
+                        $mail->addReplyTo('desarrollo@igbcolombia.com', 'PedidoApp');
+
+                        //Content
+                        $mail->isHTML(true);                                  // Set email format to HTML
+                        $mail->Subject = 'Solicitud de cuenta IGB APP';
+                        $mail->Body    = $body;
+
+                        $mail->send();
+
+
+                    } catch (Exception $e) {
+                        $this->_log->error('Error al enviar el e-mail: '. json_encode($e) );
+                    }
+
                 }else{
                     $this->db->rollback();
                     // Send errors
@@ -711,6 +749,8 @@ class SapController extends ControllerBase
         } else {
             $this->buildErrorResponse( 400, 'common.ERROR_SEARCH_DUPLICATED_NIT', [ "data"=>$data] );
         }
+
+
 
     }
 
