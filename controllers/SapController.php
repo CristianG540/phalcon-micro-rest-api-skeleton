@@ -685,7 +685,6 @@ class SapController extends ControllerBase
                 if ($newRequest->save()) {
                     // Commit the transaction
                     $this->db->commit();
-                    $this->buildSuccessResponse(200, 'common.SUCCESSFUL_REQUEST', $data);
 
                     $body = file_get_contents(__DIR__.'/../public/email_request_account.html');
                     $body = str_replace('%nombre%', $data["nombre"], $body);
@@ -724,6 +723,8 @@ class SapController extends ControllerBase
                     } catch (Exception $e) {
                         $this->_log->error('Error al enviar el e-mail: '. json_encode($e) );
                     }
+
+                    $this->buildSuccessResponse(200, 'common.SUCCESSFUL_REQUEST', $data);
 
                 }else{
                     $this->db->rollback();
