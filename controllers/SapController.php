@@ -709,7 +709,7 @@ class SapController extends ControllerBase
 
                         //Recipients
                         $mail->setFrom('desarrollo@igbcolombia.com', 'Desarrollo');
-                        $mail->addAddress("cristianneatproy@gmail.com", 'Telemercadeo');     // Add a recipient
+                        $mail->addAddress("analistacomercial@igbcolombia.com", 'Telemercadeo');     // Add a recipient
                         $mail->addReplyTo('desarrollo@igbcolombia.com', 'PedidoApp');
 
                         //Content
