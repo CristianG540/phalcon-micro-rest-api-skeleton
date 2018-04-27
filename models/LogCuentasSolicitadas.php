@@ -57,6 +57,12 @@ class LogCuentasSolicitadas extends \Phalcon\Mvc\Model
     public $created_at;
 
     /**
+     *
+     * @var integer
+     */
+    public $estado;
+
+    /**
      * Initialize method for model.
      */
     public function initialize()
@@ -113,7 +119,8 @@ class LogCuentasSolicitadas extends \Phalcon\Mvc\Model
             'ciudad' => 'ciudad',
             'motivo' => 'motivo',
             'observacion' => 'observacion',
-            'created_at' => 'created_at'
+            'created_at' => 'created_at',
+            'estado' => 'estado'
         );
     }
 
