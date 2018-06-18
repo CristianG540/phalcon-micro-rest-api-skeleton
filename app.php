@@ -102,6 +102,8 @@ $sap->get('/', 'index');
 $sap->post('/order', 'order');
 // Crea ordenes nuevas en sap mediante SOAP
 $sap->post('/order_v2', 'order_v2');
+// Motorzone Crea ordenes nuevas en sap mediante SOAP
+$sap->post('/order_motorzone', 'order_motorzone');
 // Lee un csv con datos de cartera
 $sap->post('/cartera', 'cartera');
 // Se encarga de administrar las peticiones para cuentas nuevas
