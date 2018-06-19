@@ -136,7 +136,7 @@ class SapController extends ControllerBase
         $this->initializePost();
 
         //Me logue en el soap de sap
-        $this->_login('MERCHANDISING');
+        $this->_login('IGB');
         $id = $this->_sessionId;
         $order = $this->request->getJsonRawBody();
 
@@ -478,7 +478,7 @@ class SapController extends ControllerBase
         $this->initializePost();
 
         //Me logue en el soap de sap
-        $this->_login('MERCHANDISING');
+        $this->_login('IGB');
         $id = $this->_sessionId;
         $order = $this->request->getJsonRawBody();
 
