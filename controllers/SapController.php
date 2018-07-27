@@ -359,10 +359,12 @@ class SapController extends ControllerBase
          * @var array
          */
         $products = array_reduce($order->productos, function($carry, $item){
+            $item->bodega = $item->bodega ?? "";
             $carry .= '<DocumentLine>'
                             . "<ItemCode>{$item->referencia}</ItemCode>"
                             . "<Quantity>{$item->cantidad}</Quantity>"
                             . "<DiscountPercent>{$item->descuento}</DiscountPercent>"
+                            . "<WarehouseCode>{$item->bodega}</WarehouseCode>"
                     . '</DocumentLine>';
             return $carry;
         }, '');
