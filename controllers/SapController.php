@@ -312,6 +312,7 @@ class SapController extends ControllerBase
         $order->user_email = $order->user_email ?? "No se ingreso";
         $order->total = $order->total ?? "No se ingreso";
         $order->descuento = $order->descuento ?? 0;
+        $order->bodega = $order->bodega ?? '01';
 
         if (!isset($order->id)) {
             $this->buildErrorResponse(400, 'common.INCOMPLETE_DATA_RECEIVED');
@@ -386,6 +387,7 @@ class SapController extends ControllerBase
                                 . "<Comments>{$order->comentarios}</Comments>"
                                 . "<DocDueDate>{$order->fecha_creacion}</DocDueDate>"
                                 . "<NumAtCard>{$order->id}</NumAtCard>"
+                                . "<U_idLineLeg>{$order->bodega}</U_idLineLeg>"
                                 . "<DiscountPercent>{$order->descuento}</DiscountPercent>"
                                 . '<DocumentLines>'
                                     . $products
