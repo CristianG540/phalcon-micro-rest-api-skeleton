@@ -106,6 +106,8 @@ $sap->post('/order_v2', 'order_v2');
 $sap->post('/order_motorzone', 'order_motorzone');
 // Lee un csv con datos de cartera
 $sap->post('/cartera', 'cartera');
+// Lee un csv con datos de la cartera de motozone
+$sap->post('/cartera_motorzone', 'cartera_motorzone');
 // Se encarga de administrar las peticiones para cuentas nuevas
 $sap->post('/request_account', 'request_account');
 // Adds sap routes to $app

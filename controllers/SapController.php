@@ -883,6 +883,70 @@ class SapController extends ControllerBase
 
     }
 
+    /**
+    * Con esta funcion intento hacer algo parecido al api para consultas de sails.js
+    * por el momento es solo una version basica que solo recibe un query con la sgte estructura
+    *  {
+    *      "and" : {
+    *          "codCliente"  : "C80815956",
+    *          "codVendedor" : 129
+    *      }
+    *  }
+    * cada registro dentro de la llave key equivale a una condicion de igual de tipo "and"
+    * osea que si algun por ej codVendedor no es igual 129 la condicion devolvera false, lo mismo con codCliente
+    * mas adelante se podria intentar agregar el operador "or"
+    * se pueden agregar cuantos campos sean necesarios a la condicion o no tener ninguna condicion enviado un objeto json vacio { }
+    */
+    public function cartera_motorzone() {
+        // Verifies if is post request
+        $this->initializePost();
+        $query = $this->request->getJsonRawBody(true);
+
+        $filterCartera = function (array $record) use ($query) : bool  {
+            $andCondition = true;
+            if( isset($query['and']) ) {
+                foreach ($query['and'] as $key => $val) {
+                    $andCondition = ($andCondition && $record[$key] == $val);
+                }
+            }
+            return (bool) $andCondition;
+        };
+
+        try {
+
+            /**
+             * Leo el archivo csv que contiene solo los productos por modificar
+             * mediante la libreria csv de phpleague
+             */
+            $csv = Reader::createFromPath( DS.'var'.DS.'www'.DS.'html'.DS.'reactphp-couchdb-importer'.DS.'observados'.DS.'invoice_motozone.txt', 'r');
+            $csv->setDelimiter(';');
+            $csv->setHeaderOffset(0); //set the CSV header offset
+
+
+            $stmt = (new Statement())
+                ->where($filterCartera);
+
+            $records = [];
+            foreach ($stmt->process($csv) as $offset => $record) {
+                $records[] = [
+                    "_id"               => $record['factura'],
+                    "valor"             => $record['valorFac'],
+                    "valor_total"       => $record['ValorTotalFac'],
+                    "cod_cliente"       => $record['codCliente'],
+                    "cod_vendedor"      => $record['codVendedor'],
+                    "fecha_emision"     => $record['fecha'],
+                    "fecha_vencimiento" => $record['fechaVencimiento']
+                ];
+            }
+
+            $this->buildSuccessResponse(200, 'common.SUCCESSFUL_REQUEST', $records);
+
+        } catch (Throwable $e) {
+            $this->buildErrorResponse(400, 'common.SAP_ERROR_ORDER', $e->getMessage()." ".$e->getLine());
+        }
+
+    }
+
     public function request_account() {
         // Verifies if is post request
         $this->initializePost();
